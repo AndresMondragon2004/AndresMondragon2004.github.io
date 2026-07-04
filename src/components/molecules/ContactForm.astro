@@ -1,0 +1,174 @@
+---
+const contactEndpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT || "";
+---
+
+<section class="w-full py-16 md:py-24">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 md:grid-cols-[0.9fr_1.1fr] md:px-8 lg:px-12">
+    <div class="flex flex-col justify-center">
+      <span class="mb-4 w-fit rounded-full border px-4 py-1 text-sm font-semibold brand-chip">
+        Disponible para colaborar
+      </span>
+      <h1 class="text-4xl font-extrabold tracking-tight app-text md:text-5xl">
+        Hablemos de tu próxima idea.
+      </h1>
+      <p class="mt-5 text-lg leading-relaxed app-muted">
+        Si necesitas una landing, una app web, una integración o quieres revisar
+        un proyecto técnico, cuéntame el contexto y te respondo con una propuesta clara.
+      </p>
+
+      <div class="mt-8 grid gap-3 text-sm app-muted">
+        <a
+          href="https://www.linkedin.com/in/jes%C3%BAs-andr%C3%A9s-mondrag%C3%B3n-tenorio-571842288/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-3 rounded-lg border app-surface px-4 py-3 font-semibold brand-link motion-card"
+        >
+          LinkedIn
+          <span class="text-gray-400">Respuesta profesional</span>
+        </a>
+        <a
+          href="https://wa.me/527224676181"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-3 rounded-lg border app-surface px-4 py-3 font-semibold brand-link motion-card"
+        >
+          WhatsApp
+          <span class="text-gray-400">Contacto directo</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="relative">
+      <!-- Background glow effect that activates on focus -->
+      <div id="contact-glow" class="absolute -inset-1 rounded-2xl bg-cyan-500/20 blur-xl transition-all duration-500 opacity-0"></div>
+
+      <div class="relative rounded-2xl border app-surface p-6 shadow-xl md:p-8 motion-card">
+        <div id="contact-success" class="hidden py-12 text-center">
+          <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+            <svg class="h-9 w-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold app-text">Gracias por escribir.</h2>
+          <p id="contact-success-message" class="mt-3 app-muted">
+            Mensaje enviado. Te responderé lo antes posible.
+          </p>
+          <button
+            id="contact-reset"
+            type="button"
+            class="mt-8 rounded-lg border-2 brand-outline px-5 py-2 font-semibold"
+          >
+            Enviar otro mensaje
+          </button>
+        </div>
+
+        <form id="contact-form" class="space-y-5" data-endpoint={contactEndpoint}>
+          <div id="contact-error" class="hidden rounded-lg border border-red-300 bg-red-50 p-4 text-sm font-medium text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200"></div>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold app-muted">Nombre</span>
+            <input name="nombre" class="form-field" placeholder="Tu nombre" required />
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold app-muted">Correo electrónico</span>
+            <input name="correo" type="email" class="form-field" placeholder="tu@email.com" required />
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold app-muted">Asunto</span>
+            <input name="asunto" class="form-field" placeholder="Landing page, app, colaboración..." required />
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold app-muted">Mensaje</span>
+            <textarea name="mensaje" class="form-field min-h-36 resize-none" placeholder="Cuéntame qué necesitas construir, mejorar o resolver." required></textarea>
+          </label>
+
+          <button
+            id="contact-submit"
+            type="submit"
+            class="w-full rounded-lg brand-button px-6 py-4 font-bold shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Enviar mensaje
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  const submitButton = document.getElementById("contact-submit") as HTMLButtonElement | null;
+  const errorBox = document.getElementById("contact-error");
+  const successBox = document.getElementById("contact-success");
+  const successMessage = document.getElementById("contact-success-message");
+  const resetButton = document.getElementById("contact-reset");
+  const glow = document.getElementById("contact-glow");
+
+  function showError(message: string) {
+    if (!errorBox) return;
+    errorBox.textContent = message;
+    errorBox.classList.remove("hidden");
+  }
+
+  function hideError() {
+    errorBox?.classList.add("hidden");
+  }
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    hideError();
+
+    const endpoint = form.dataset.endpoint || "";
+    const data = new FormData(form);
+    const payload = {
+      nombre: String(data.get("nombre") || "").trim(),
+      correo: String(data.get("correo") || "").trim(),
+      asunto: String(data.get("asunto") || "").trim(),
+      mensaje: String(data.get("mensaje") || "").trim(),
+      source: "portfolio",
+      submittedAt: new Date().toISOString(),
+    };
+
+    submitButton?.setAttribute("disabled", "true");
+    if (submitButton) submitButton.textContent = "Enviando...";
+
+    try {
+      if (!endpoint) {
+        throw new Error("Missing PUBLIC_CONTACT_ENDPOINT");
+      }
+
+      await fetch(endpoint, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      form.classList.add("hidden");
+      successBox?.classList.remove("hidden");
+      glow?.classList.add("scale-105", "opacity-40");
+      if (successMessage) {
+        successMessage.textContent = "Mensaje enviado. Te responderé lo antes posible.";
+      }
+      form.reset();
+    } catch (error) {
+      showError(
+        endpoint
+          ? "No pude enviar el mensaje. También puedes escribirme por LinkedIn o WhatsApp."
+          : "Falta configurar PUBLIC_CONTACT_ENDPOINT. Mientras tanto, escríbeme por LinkedIn o WhatsApp."
+      );
+    } finally {
+      submitButton?.removeAttribute("disabled");
+      if (submitButton) submitButton.textContent = "Enviar mensaje";
+    }
+  });
+
+  resetButton?.addEventListener("click", () => {
+    successBox?.classList.add("hidden");
+    form?.classList.remove("hidden");
+    glow?.classList.remove("scale-105", "opacity-40");
+  });
+</script>

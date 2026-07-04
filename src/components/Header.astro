@@ -1,0 +1,189 @@
+---
+// Header.astro - Logo mejorado con rutas corregidas
+
+interface HeaderProps {
+  currentPath?: string;
+}
+
+const { currentPath = "/" } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
+
+// Normalizar baseUrl para asegurar que termine con /
+const normalizedBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+
+const navItems = [
+  { href: normalizedBase + "about/", label: "Acerca de mí" },
+  { href: normalizedBase + "skills/", label: "Habilidades" },
+  { href: normalizedBase + "projects/", label: "Proyectos" },
+  { href: normalizedBase + "blog/", label: "Blog" },
+  { href: normalizedBase + "contact/", label: "Contacto" },
+];
+---
+
+<header
+  id="main-header"
+  class="py-5 border-b fixed top-0 z-50 w-full app-surface backdrop-blur-xl transition-transform duration-300"
+>
+  <nav class="mx-auto px-4 max-w-screen-2xl flex justify-between items-center">
+    <!-- Logo / Nombre Mejorado -->
+    <a
+      href={normalizedBase}
+      class="group flex items-center gap-2 transition-all"
+    >
+      <span
+        class="font-bold text-xl sm:text-2xl brand-gradient-text"
+      >
+        AndresDev
+      </span>
+      <span
+        class="brand-text text-lg sm:text-xl font-mono group-hover:rotate-12 transition-transform"
+      >
+        &lt;/&gt;
+      </span>
+    </a>
+
+    <!-- Enlaces de navegación (centro) -->
+    <div class="hidden md:flex items-center gap-x-6">
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            class="font-medium brand-link transition-colors relative group"
+          >
+            {item.label}
+            <span class="absolute -bottom-1 left-0 w-0 h-0.5 brand-gradient transition-all duration-300 group-hover:w-full" />
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="flex items-center gap-2">
+
+
+      <!-- Botón de menú móvil -->
+      <button
+        id="mobile-menu-toggle"
+        class="md:hidden relative z-50 p-2 rounded-lg brand-link surface-hover active:scale-90 transition-transform"
+        aria-label="Abrir menú"
+        type="button"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            id="hamburger-icon"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+            class="transition-all duration-300"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Menú móvil Full-Screen Blur -->
+  <div class="md:hidden fixed inset-0 h-screen w-screen bg-zinc-950/80 backdrop-blur-2xl transition-all duration-500 opacity-0 pointer-events-none flex flex-col justify-center items-center gap-8 -z-10" id="mobile-menu">
+    {
+      navItems.map((item, index) => (
+        <a
+          href={item.href}
+          class="text-3xl font-extrabold text-white mobile-nav-item transform translate-y-8 opacity-0 transition-all duration-500 active:scale-90 active:text-cyan-400"
+          style={`transition-delay: ${index * 100}ms`}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </div>
+</header>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const hamburgerIcon = document.getElementById("hamburger-icon");
+    const header = document.getElementById("main-header");
+    const mobileNavItems = document.querySelectorAll(".mobile-nav-item");
+
+    let isMenuOpen = false;
+
+    if (mobileMenuToggle && mobileMenu) {
+      const newToggle = mobileMenuToggle.cloneNode(true);
+      mobileMenuToggle.parentNode?.replaceChild(newToggle, mobileMenuToggle);
+      
+      newToggle.addEventListener("click", () => {
+        isMenuOpen = !isMenuOpen;
+        
+        if (isMenuOpen) {
+          // Open menu
+          mobileMenu.classList.remove("opacity-0", "pointer-events-none");
+          mobileMenu.classList.add("opacity-100", "pointer-events-auto");
+          
+          // Animate items in
+          mobileNavItems.forEach(item => {
+            item.classList.remove("translate-y-8", "opacity-0");
+            item.classList.add("translate-y-0", "opacity-100");
+          });
+
+          // Change to X icon
+          hamburgerIcon?.setAttribute("d", "M6 18L18 6M6 6l12 12");
+          
+          // Prevent body scroll
+          document.body.style.overflow = "hidden";
+        } else {
+          closeMobileMenu();
+        }
+      });
+    }
+
+    function closeMobileMenu() {
+      isMenuOpen = false;
+      mobileMenu?.classList.add("opacity-0", "pointer-events-none");
+      mobileMenu?.classList.remove("opacity-100", "pointer-events-auto");
+      
+      // Animate items out
+      mobileNavItems.forEach(item => {
+        item.classList.add("translate-y-8", "opacity-0");
+        item.classList.remove("translate-y-0", "opacity-100");
+      });
+
+      // Change back to hamburger
+      hamburgerIcon?.setAttribute("d", "M4 6h16M4 12h16M4 18h16");
+      
+      // Restore body scroll
+      document.body.style.overflow = "";
+    }
+
+    // Cerrar menú al hacer clic en un enlace
+    const mobileLinks = document.querySelectorAll("#mobile-menu a");
+    mobileLinks.forEach(link => {
+      link.addEventListener("click", closeMobileMenu);
+    });
+
+    // Smart Header Logic
+    let lastScroll = 0;
+    window.addEventListener("scroll", () => {
+      if (isMenuOpen) return; // Don't hide header if menu is open
+      
+      const currentScroll = window.pageYOffset;
+      if (currentScroll <= 0) {
+        header?.classList.remove("-translate-y-full");
+        return;
+      }
+      
+      if (currentScroll > lastScroll && currentScroll > 80) {
+        // Scroll Down
+        header?.classList.add("-translate-y-full");
+      } else {
+        // Scroll Up
+        header?.classList.remove("-translate-y-full");
+      }
+      lastScroll = currentScroll;
+    });
+  });
+</script>

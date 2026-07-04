@@ -1,0 +1,99 @@
+---
+interface Props {
+  showTitle?: boolean;
+}
+
+const { showTitle = true } = Astro.props;
+
+const skillCategories = [
+  {
+    title: "Frontend productivo",
+    description: "Interfaces responsivas, componentes reutilizables y experiencias rápidas.",
+    evidence: "Usado en portfolio, proyectos web e interfaces de hackathon.",
+    level: "Uso frecuente",
+    accent: "text-cyan-400",
+    technologies: ["HTML", "CSS", "JavaScript", "React", "Tailwind CSS", "Astro"],
+  },
+  {
+    title: "Backend, BD e Infraestructura",
+    description: "APIs, lógica de servidor, bases de datos relacionales empresariales y administración de servidores.",
+    evidence: "Despliegues en producción usando Supabase/PostgreSQL, y configuración robusta de Oracle 19c en Linux.",
+    level: "Base sólida",
+    accent: "text-cyan-400",
+    technologies: ["Oracle DB 19c", "PostgreSQL", "Supabase", "Node.js", "Deno", "Linux/Bash"],
+  },
+  {
+    title: "IA Aplicada y Hardware",
+    description: "Integración de Modelos de Lenguaje (LLMs) locales, visión por computadora y actuadores físicos.",
+    evidence: "Clasificador físico usando Qwen3-VL, Tool Calling, Python y microcontroladores Arduino.",
+    level: "Innovación Activa",
+    accent: "text-cyan-400",
+    technologies: ["Python", "LLMs Locales", "Tool Calling", "Arduino / C++", "Computer Vision"],
+  },
+  {
+    title: "Herramientas de entrega",
+    description: "Control de versiones, despliegue, depuración y trabajo organizado.",
+    evidence: "Trabajo diario con GitHub, Vite, Astro y entornos Linux.",
+    level: "Flujo diario",
+    accent: "text-cyan-400",
+    technologies: ["Git & GitHub", "Vite", "Docker", "Linux", "VS Code", "Figma"],
+  },
+];
+---
+
+<section class={`${showTitle ? "min-h-[calc(100vh-80px)] py-16 md:py-20" : "py-10"} relative overflow-hidden`}>
+
+  <div class="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 w-full relative z-10">
+    {showTitle && (
+      <div class="mb-14 max-w-3xl scroll-animate">
+        <span class="inline-flex rounded-full border px-4 py-1 text-sm font-bold brand-chip">
+          Stack técnico
+        </span>
+        <h1 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">
+          Herramientas que uso para pasar de idea a producto funcional.
+        </h1>
+        <p class="mt-4 text-lg app-muted">
+          Me enfoco en tecnología práctica: interfaces claras, prototipos rápidos e integraciones que sí resuelven algo.
+        </p>
+      </div>
+    )}
+
+    <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
+      {skillCategories.map((category, index) => (
+        <article
+          class="group motion-card rounded-2xl border border-zinc-800 bg-zinc-950 p-6 md:p-8 shadow-sm scroll-animate hover:border-cyan-500/30 transition-colors"
+          style={`--reveal-delay: ${(index % 2) * 150}ms`}
+        >
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <span class={`text-xs font-bold uppercase tracking-wider ${category.accent}`}>{category.level}</span>
+              <h2 class="mt-2 text-2xl font-extrabold text-white">
+                {category.title}
+              </h2>
+            </div>
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 group-hover:text-cyan-400 group-hover:border-cyan-500/50 transition-all">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4 4 4-4 4M6 16l-4-4 4-4"></path>
+              </svg>
+            </div>
+          </div>
+
+          <p class="mt-4 text-zinc-400 leading-relaxed">
+            {category.description}
+          </p>
+          <p class="mt-4 rounded-xl bg-zinc-900/50 border border-zinc-800/50 p-4 text-sm font-medium leading-relaxed text-zinc-300">
+            {category.evidence}
+          </p>
+
+          <div class="mt-6 flex flex-wrap gap-2">
+            {category.technologies.map((tech) => (
+              <span class="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm font-bold text-zinc-400 group-hover:border-zinc-700 transition-colors">
+                {tech}
+              </span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

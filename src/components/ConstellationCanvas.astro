@@ -1,0 +1,337 @@
+---
+// ConstellationCanvas.astro
+// Interactive constellation graph that replaces the hero photo.
+// Self-contained: canvas + physics + mouse/touch interaction.
+---
+
+<div class="constellation-wrapper">
+  <canvas id="constellation-canvas"></canvas>
+</div>
+
+<style>
+  .constellation-wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    border-radius: inherit;
+    overflow: hidden;
+    position: relative;
+  }
+
+  #constellation-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  // =============================================
+  // CONSTELLATION GRAPH — Interactive Canvas
+  // =============================================
+
+  const canvas = document.getElementById(
+    "constellation-canvas"
+  ) as HTMLCanvasElement;
+
+  if (canvas) {
+    const ctx = canvas.getContext("2d")!;
+    const wrapper = canvas.parentElement!;
+
+    // --- Configuration ---
+    const NODE_COUNT = 35;
+    const LEADER_EASING = 0.08;
+    const CONNECTION_RADIUS = 120;
+    const LEADER_CONNECTION_RADIUS = 200;
+    const SPRING_CONSTANT = 0.01;
+    const DAMPING = 0.95;
+    const DISPERSION_FORCE = 8;
+
+    // --- State ---
+    interface Node {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      targetX: number;
+      targetY: number;
+      size: number;
+      opacity: number;
+      easingFactor: number;
+    }
+
+    let nodes: Node[] = [];
+    let mouse = { x: -9999, y: -9999, active: false };
+    let canvasW = 0;
+    let canvasH = 0;
+    let centerX = 0;
+    let centerY = 0;
+    let animId: number;
+    let floatAngle = 0;
+
+    // --- Palette (adapts to dark/light) ---
+    function getPalette() {
+      const isDark = document.documentElement.classList.contains("dark");
+      return {
+        // Transparent — inherits page background
+        bg: isDark ? "rgba(17, 24, 39, 0)" : "rgba(255, 255, 255, 0)",
+        nodeFill: isDark ? "#ffffff" : "#333333",
+        nodeGlow: isDark ? "#ffffff" : "#555555",
+        lineColor: isDark
+          ? (a: number) => `rgba(255, 255, 255, ${a})`
+          : (a: number) => `rgba(80, 80, 80, ${a})`,
+        leaderLineColor: isDark
+          ? (a: number) => `rgba(200, 200, 255, ${a})`
+          : (a: number) => `rgba(100, 60, 180, ${a})`,
+      };
+    }
+
+    // --- Resize ---
+    function resize() {
+      const rect = wrapper.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvasW = rect.width;
+      canvasH = rect.height;
+      canvas.width = canvasW * dpr;
+      canvas.height = canvasH * dpr;
+      canvas.style.width = canvasW + "px";
+      canvas.style.height = canvasH + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      centerX = canvasW / 2;
+      centerY = canvasH / 2;
+    }
+
+    // --- Initialize nodes ---
+    function initNodes() {
+      nodes = [];
+      for (let i = 0; i < NODE_COUNT; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * Math.min(canvasW, canvasH) * 0.35;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+
+        nodes.push({
+          x,
+          y,
+          vx: 0,
+          vy: 0,
+          targetX: x,
+          targetY: y,
+          size: i === 0 ? 5 : Math.random() * 2.5 + 1.5,
+          opacity: i === 0 ? 1 : Math.random() * 0.5 + 0.4,
+          // Leader (i=0) has strongest easing; satellites get progressively slower
+          easingFactor: i === 0 ? LEADER_EASING : 0.02 + i * 0.004,
+        });
+      }
+    }
+
+    // --- Physics update ---
+    function update() {
+      const leader = nodes[0];
+      floatAngle += 0.008;
+
+      // Leader target: follows cursor or floats autonomously
+      if (mouse.active) {
+        leader.targetX = mouse.x;
+        leader.targetY = mouse.y;
+      } else {
+        // Gentle autonomous floating around center
+        leader.targetX =
+          centerX + Math.sin(floatAngle) * canvasW * 0.12;
+        leader.targetY =
+          centerY + Math.cos(floatAngle * 0.7) * canvasH * 0.1;
+      }
+
+      // Move leader with easing
+      leader.x += (leader.targetX - leader.x) * leader.easingFactor;
+      leader.y += (leader.targetY - leader.y) * leader.easingFactor;
+
+      // Satellite physics
+      for (let i = 1; i < nodes.length; i++) {
+        const node = nodes[i];
+
+        // Spring attraction toward leader with staggered delay
+        const dx = leader.x - node.x;
+        const dy = leader.y - node.y;
+
+        // Each satellite has a natural offset from leader
+        const orbitAngle = (i / NODE_COUNT) * Math.PI * 2 + floatAngle * 0.3;
+        const orbitRadius = 30 + (i % 8) * 15;
+        const idealX = leader.x + Math.cos(orbitAngle) * orbitRadius;
+        const idealY = leader.y + Math.sin(orbitAngle) * orbitRadius;
+
+        const springDx = idealX - node.x;
+        const springDy = idealY - node.y;
+
+        node.vx += springDx * SPRING_CONSTANT;
+        node.vy += springDy * SPRING_CONSTANT;
+
+        // Damping
+        node.vx *= DAMPING;
+        node.vy *= DAMPING;
+
+        // Apply velocity
+        node.x += node.vx;
+        node.y += node.vy;
+
+        // Soft boundary: nudge back if out of canvas
+        const margin = 10;
+        if (node.x < margin) node.vx += 0.5;
+        if (node.x > canvasW - margin) node.vx -= 0.5;
+        if (node.y < margin) node.vy += 0.5;
+        if (node.y > canvasH - margin) node.vy -= 0.5;
+      }
+    }
+
+    // --- Draw ---
+    function draw() {
+      const palette = getPalette();
+
+      // Clear canvas (transparent background)
+      ctx.clearRect(0, 0, canvasW, canvasH);
+
+      // Draw connections between nodes
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          const maxDist =
+            i === 0 ? LEADER_CONNECTION_RADIUS : CONNECTION_RADIUS;
+
+          if (dist < maxDist) {
+            const alpha = (1 - dist / maxDist) * (i === 0 ? 0.35 : 0.15);
+            ctx.beginPath();
+            ctx.strokeStyle =
+              i === 0
+                ? palette.leaderLineColor(alpha)
+                : palette.lineColor(alpha);
+            ctx.lineWidth = i === 0 ? 1 : 0.5;
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw nodes
+      for (let i = nodes.length - 1; i >= 0; i--) {
+        const node = nodes[i];
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+
+        if (i === 0) {
+          // Leader with glow
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = palette.nodeGlow;
+          ctx.fillStyle = palette.nodeFill;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Extra glow ring
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.size + 3, 0, Math.PI * 2);
+          ctx.strokeStyle = palette.lineColor(0.2);
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = palette.nodeFill;
+          ctx.globalAlpha = node.opacity;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+
+    // --- Animation loop ---
+    function animate() {
+      update();
+      draw();
+      animId = requestAnimationFrame(animate);
+    }
+
+    // --- Click: disperse satellites ---
+    function disperse() {
+      for (let i = 1; i < nodes.length; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const force = DISPERSION_FORCE + Math.random() * 4;
+        nodes[i].vx += Math.cos(angle) * force;
+        nodes[i].vy += Math.sin(angle) * force;
+      }
+    }
+
+    // --- Event listeners ---
+    canvas.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+      mouse.active = true;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      mouse.active = false;
+    });
+
+    canvas.addEventListener("click", disperse);
+
+    // Touch support
+    canvas.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        mouse.x = touch.clientX - rect.left;
+        mouse.y = touch.clientY - rect.top;
+        mouse.active = true;
+      },
+      { passive: false }
+    );
+
+    canvas.addEventListener("touchstart", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      mouse.x = touch.clientX - rect.left;
+      mouse.y = touch.clientY - rect.top;
+      mouse.active = true;
+    });
+
+    canvas.addEventListener("touchend", () => {
+      mouse.active = false;
+      disperse(); // Tap = click on mobile
+    });
+
+    // --- ResizeObserver ---
+    const resizeObserver = new ResizeObserver(() => {
+      const oldW = canvasW;
+      const oldH = canvasH;
+      resize();
+      // Scale existing node positions proportionally
+      if (oldW > 0 && oldH > 0) {
+        const scaleX = canvasW / oldW;
+        const scaleY = canvasH / oldH;
+        for (const node of nodes) {
+          node.x *= scaleX;
+          node.y *= scaleY;
+        }
+      }
+    });
+    resizeObserver.observe(wrapper);
+
+    // Listen for theme changes to update palette instantly
+    const themeObserver = new MutationObserver(() => {
+      // Palette is read each frame in draw(), so no action needed —
+      // but we can force a redraw if animation isn't running
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    // --- Init ---
+    resize();
+    initNodes();
+    animate();
+  }
+</script>

@@ -1,0 +1,263 @@
+---
+// blog/[id].astro - Página de entrada individual del blog
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const baseUrl = import.meta.env.BASE_URL;
+const normalizedBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+
+// Función para formatear fecha
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+// Obtener posts relacionados (los 3 más recientes excluyendo el actual)
+const allPosts = await getCollection("blog");
+const relatedPosts = allPosts
+  .filter((p) => p.id !== post.id)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+// Calcular tiempo de lectura aproximado
+const wordCount = post.body?.split(/\s+/).length || 0;
+const readingTime = Math.ceil(wordCount / 200);
+---
+
+<Layout title={`${post.data.title} - Blog`} description={post.data.description}>
+  <article class="py-12">
+    <!-- Breadcrumb -->
+    <nav class="mb-8">
+      <ol
+        class="flex items-center gap-2 text-sm bg-white dark:bg-gray-800 rounded-lg px-4 py-3 border border-gray-200 dark:border-gray-700 inline-flex"
+      >
+        <li>
+          <a
+            href={normalizedBase}
+            class="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-1"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              ></path>
+            </svg>
+            Inicio
+          </a>
+        </li>
+        <li class="text-gray-400">/</li>
+        <li>
+          <a
+            href={`${normalizedBase}blog/`}
+            class="text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            >Blog</a
+          >
+        </li>
+        <li class="text-gray-400">/</li>
+        <li class="text-gray-900 dark:text-gray-100 font-medium">
+          {post.data.title}
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Header del Post -->
+    <header class="mb-12">
+      <!-- Metadata -->
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <div
+          class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50"
+        >
+          <svg
+            class="w-4 h-4 text-purple-600 dark:text-purple-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            ></path>
+          </svg>
+          <time
+            class="text-sm text-purple-700 dark:text-purple-300 font-medium"
+          >
+            {formatDate(post.data.date)}
+          </time>
+        </div>
+
+        <div
+          class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50"
+        >
+          <svg
+            class="w-4 h-4 text-purple-600 dark:text-purple-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span
+            class="text-sm text-purple-700 dark:text-purple-300 font-medium"
+          >
+            {readingTime} min lectura
+          </span>
+        </div>
+      </div>
+
+      <h1
+        class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight"
+      >
+        {post.data.title}
+      </h1>
+
+      <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+        {post.data.description}
+      </p>
+
+      <!-- Tags -->
+      {
+        post.data.tags && post.data.tags.length > 0 && (
+          <div class="flex gap-2 flex-wrap mb-8">
+            {post.data.tags.map((tag) => (
+              <span class="text-sm px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium border border-purple-200/50 dark:border-purple-700/50">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )
+      }
+
+      <!-- Imagen destacada -->
+      <div
+        class="relative rounded-2xl overflow-hidden aspect-video mb-8 shadow-lg"
+      >
+        <img
+          src={post.data.image}
+          alt={post.data.title}
+          class="w-full h-full object-cover"
+        />
+      </div>
+    </header>
+
+    <!-- Contenido del Post -->
+    <div class="mb-12">
+      <div
+        class="bg-white dark:bg-gray-800 rounded-2xl p-8 md:p-12 shadow-lg border border-gray-100 dark:border-gray-700"
+      >
+        <div
+          class="prose prose-lg dark:prose-invert max-w-none prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-h2:border-l-4 prose-h2:border-purple-500 prose-h2:pl-4 prose-a:text-purple-600 dark:prose-a:text-purple-400"
+        >
+          <Content />
+        </div>
+      </div>
+    </div>
+
+    <!-- Navegación -->
+    <div class="mb-12">
+      <div
+        class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700/50"
+      >
+        <a
+          href={`${normalizedBase}blog/`}
+          class="inline-flex items-center gap-3 text-purple-600 dark:text-purple-400 font-bold hover:gap-4 transition-all duration-300"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"></path>
+          </svg>
+          <span>Volver al blog</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Posts relacionados -->
+    {
+      relatedPosts.length > 0 && (
+        <section class="mt-16">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold">
+              <span class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Más publicaciones
+              </span>
+            </h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {relatedPosts.map((relatedPost) => (
+              <a
+                href={`${normalizedBase}blog/${relatedPost.id}/`}
+                class="group block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700"
+              >
+                <div class="aspect-video overflow-hidden">
+                  <img
+                    src={relatedPost.data.image}
+                    alt={relatedPost.data.title}
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div class="p-6">
+                  <div class="flex items-center gap-2 mb-3">
+                    <svg
+                      class="w-4 h-4 text-purple-600 dark:text-purple-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <time class="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                      {formatDate(relatedPost.data.date)}
+                    </time>
+                  </div>
+                  <h3 class="font-bold text-lg group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2">
+                    {relatedPost.data.title}
+                  </h3>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </article>
+</Layout>

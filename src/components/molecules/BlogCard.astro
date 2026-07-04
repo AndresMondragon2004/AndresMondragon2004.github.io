@@ -1,0 +1,144 @@
+---
+// BlogCard.astro - Tarjeta para mostrar entradas del blog
+
+interface Props {
+  id: string;
+  title: string;
+  date: string | Date;
+  image: string;
+  description: string;
+  tags?: string[];
+  readingTime?: number;
+  isFeatured?: boolean;
+}
+
+const { id, title, date, image, description, tags, readingTime, isFeatured = false } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
+const normalizedBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+
+// Función para formatear fecha
+function formatDate(dateValue: string | Date): string {
+  const dateObj = dateValue instanceof Date
+    ? dateValue
+    : new Date(dateValue.includes("T") ? dateValue : `${dateValue}T00:00:00Z`);
+
+  if (Number.isNaN(dateObj.getTime())) {
+    return "";
+  }
+
+  return dateObj.toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+---
+
+<article
+  class={`group image-card relative motion-card scroll-animate-scale rounded-2xl overflow-hidden shadow-lg border border-zinc-800 bg-zinc-950 flex h-full ${isFeatured ? 'flex-col md:flex-row' : 'flex-col'}`}
+>
+  <!-- Imagen -->
+  <a
+    href={`${normalizedBase}blog/${id}/`}
+    class={`block relative overflow-hidden bg-black motion-media shrink-0 ${isFeatured ? 'w-full md:w-1/2 lg:w-[55%]' : 'w-full aspect-video'}`}
+  >
+    <img
+      src={image}
+      alt={title}
+      class="w-full h-full object-cover"
+      loading="lazy"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+    >
+    </div>
+  </a>
+
+  <!-- Contenido -->
+  <div class="p-6 flex flex-col flex-grow">
+    <!-- Fecha y Tiempo de lectura -->
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+      <div
+        class="flex items-center gap-2 px-3 py-1.5 rounded-full border brand-chip"
+      >
+        <svg
+          class="w-4 h-4 brand-text"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          ></path>
+        </svg>
+        <time class="text-sm brand-text font-medium">
+          {formatDate(date)}
+        </time>
+      </div>
+
+      {readingTime && (
+        <div class="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 font-medium px-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>{readingTime} min</span>
+        </div>
+      )}
+    </div>
+
+    <!-- Tags -->
+    {
+      tags && tags.length > 0 && (
+        <div class="flex gap-2 flex-wrap mb-4">
+          {tags.map((tag) => (
+            <span class="text-xs px-3 py-1 rounded-full font-bold border border-zinc-800 bg-zinc-900 text-cyan-400">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )
+    }
+
+    <!-- Título -->
+    <a href={`${normalizedBase}blog/${id}/`} class="block mb-3">
+      <h3
+        class={`font-extrabold text-white group-hover:text-cyan-400 transition-colors line-clamp-2 leading-tight ${isFeatured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}`}
+      >
+        {title}
+      </h3>
+    </a>
+
+    <!-- Descripción -->
+    <p
+      class="text-zinc-400 mb-6 line-clamp-3 leading-relaxed flex-grow"
+    >
+      {description}
+    </p>
+
+    <!-- Botón Leer más - pegado al fondo -->
+    <div class="mt-auto">
+      <a
+        href={`${normalizedBase}blog/${id}/`}
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg brand-button font-semibold group/btn"
+      >
+        <span>Leer artículo</span>
+        <svg
+          class="w-5 h-5 transition-transform group-hover/btn:translate-x-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,80 @@
+---
+// Hobbies.astro - Bento Grid of personal interests
+import { Image } from "astro:assets";
+import familia from "../images/familia.jpeg";
+import juegos from "../images/juegos.jpeg";
+import leer from "../images/leer.jpeg";
+import musica from "../images/musica.jpeg";
+import programacion from "../images/programacion.jpeg";
+
+const hobbies = [
+  {
+    title: "Programación",
+    image: programacion,
+    description: "Mi pasión y mi carrera. Me encanta resolver problemas complejos y aprender nuevas tecnologías cada día.",
+    size: "md:col-span-2 md:row-span-2",
+  },
+  {
+    title: "Familia",
+    image: familia,
+    description: "Mi motor y mi apoyo incondicional.",
+    size: "md:col-span-1 md:row-span-1",
+  },
+  {
+    title: "Música",
+    image: musica,
+    description: "La banda sonora de mi vida mientras programo.",
+    size: "md:col-span-1 md:row-span-1",
+  },
+  {
+    title: "Juegos",
+    image: juegos,
+    description: "Donde la lógica y la diversión se encuentran.",
+    size: "md:col-span-1 md:row-span-1",
+  },
+  {
+    title: "Leer",
+    image: leer,
+    description: "Explorando nuevos mundos y conocimientos.",
+    size: "md:col-span-1 md:row-span-1",
+  },
+];
+---
+
+<section class="py-20 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
+    <div class="text-center mb-16 scroll-animate">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4">
+        Más allá del <span class="brand-text">Código</span>
+      </h2>
+      <p class="app-muted text-lg max-w-2xl mx-auto">
+        Un vistazo a las cosas que me inspiran y me mantienen motivado.
+      </p>
+      <div class="h-1.5 w-24 brand-gradient rounded-full mx-auto mt-6"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[200px] md:auto-rows-[250px]">
+      {hobbies.map((hobby, index) => (
+        <div 
+          class={`group image-card relative rounded-3xl overflow-hidden shadow-lg motion-card scroll-animate ${hobby.size}`}
+          style={`--reveal-delay: ${index * 100}ms`}
+        >
+          <Image 
+            src={hobby.image} 
+            alt={hobby.title}
+            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
+          
+          <div class="absolute bottom-0 left-0 p-6 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+            <h3 class="text-xl font-bold text-white mb-2">{hobby.title}</h3>
+            <p class="text-gray-200 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100 line-clamp-2">
+              {hobby.description}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

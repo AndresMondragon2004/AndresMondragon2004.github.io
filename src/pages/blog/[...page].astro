@@ -1,0 +1,149 @@
+---
+// blog/[...page].astro - Página principal del blog con paginación
+import Layout from "../../layouts/Layout.astro";
+import BlogCard from "../../components/molecules/BlogCard.astro";
+import { getCollection } from "astro:content";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  // Obtener todos los posts y ordenar por fecha (más reciente primero)
+  const posts = (await getCollection("blog")).sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+  );
+  
+  // Mapear para incluir tiempo de lectura
+  const postsWithMetadata = posts.map(post => {
+    const wordCount = post.body?.split(/\s+/).length || 0;
+    return {
+      ...post,
+      readingTime: Math.ceil(wordCount / 200)
+    };
+  });
+  
+  // Paginar los posts - 3 por página
+  return paginate(postsWithMetadata, { pageSize: 3 });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+
+// Construir URLs con base correcta para GitHub Pages
+const baseUrl = import.meta.env.BASE_URL;
+const normalizedBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+
+function getPageUrl(pageNum: number): string {
+  if (pageNum === 1) {
+    return `${normalizedBase}blog/`;
+  }
+  return `${normalizedBase}blog/${pageNum}/`;
+}
+---
+
+<Layout
+  title="Blog - AndresDev"
+  description="Mis experiencias, aprendizajes y proyectos en desarrollo web y la universidad"
+>
+  <div class="py-12">
+    <!-- Header del Blog -->
+    <div class="text-center mb-12">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6 text-white">
+        <span class="text-cyan-400">
+          Mi Blog
+        </span>
+      </h1>
+      <p
+        class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto"
+      >
+        Comparto mis experiencias en desarrollo web, proyectos universitarios y
+        mi día a día como estudiante y desarrollador.
+      </p>
+    </div>
+
+    <!-- Grid de Posts -->
+    {
+      page.data.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {page.data.map((post) => (
+            <BlogCard
+              id={post.id}
+              title={post.data.title}
+              date={post.data.date.toISOString().split("T")[0]}
+              image={post.data.image}
+              description={post.data.description}
+              tags={post.data.tags}
+              readingTime={post.readingTime}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-gray-600 dark:text-gray-400 text-lg">
+            Aún no hay entradas en el blog. ¡Pronto habrá contenido nuevo!
+          </p>
+        </div>
+      )
+    }
+
+    <!-- Paginación -->
+    {
+      page.lastPage > 1 && (
+        <nav class="flex justify-center items-center gap-4 mt-16">
+          <!-- Botón Anterior -->
+          {page.url.prev ? (
+            <a
+              href={getPageUrl(page.currentPage - 1)}
+              class="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900 text-cyan-400 font-medium hover:bg-zinc-800 hover:border-cyan-500/50 transition-colors shadow-lg"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Anterior
+            </a>
+          ) : (
+            <span class="flex items-center gap-2 px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-medium cursor-not-allowed">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Anterior
+            </span>
+          )}
+
+          <!-- Números de Página -->
+          <div class="flex items-center gap-2">
+            {Array.from({ length: page.lastPage }, (_, i) => i + 1).map((num) => (
+              <a
+                href={getPageUrl(num)}
+                class={`w-10 h-10 flex items-center justify-center rounded-full font-bold transition-all border ${
+                  num === page.currentPage
+                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-400"
+                    : "border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-cyan-500/30 hover:text-cyan-300"
+                }`}
+              >
+                {num}
+              </a>
+            ))}
+          </div>
+
+          <!-- Botón Siguiente -->
+          {page.url.next ? (
+            <a
+              href={getPageUrl(page.currentPage + 1)}
+              class="flex items-center gap-2 px-6 py-3 rounded-full border border-zinc-800 bg-zinc-900 text-cyan-400 font-medium hover:bg-zinc-800 hover:border-cyan-500/50 transition-colors shadow-lg"
+            >
+              Siguiente
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          ) : (
+            <span class="flex items-center gap-2 px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-medium cursor-not-allowed">
+              Siguiente
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          )}
+        </nav>
+      )
+    }
+  </div>
+</Layout>

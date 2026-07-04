@@ -1,0 +1,90 @@
+---
+import { Image } from "astro:assets";
+import foto1 from "../images/foto1.jpg";
+import juegos from "../images/juegos.jpeg";
+import programacion from "../images/programacion.jpeg";
+import musica from "../images/musica.jpeg";
+import leer from "../images/leer.jpeg";
+
+const hobbies = [
+  { title: "Gaming", image: juegos },
+  { title: "Desarrollo", image: programacion },
+  { title: "Música", image: musica },
+  { title: "Lectura", image: leer },
+];
+---
+
+<section class="py-16 md:py-24 max-w-7xl mx-auto px-4 md:px-8 lg:px-12">
+  <div class="mb-12 scroll-animate">
+    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
+      Código, diseño y <span class="text-cyan-400">criterio.</span>
+    </h1>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+    
+    <!-- BIO (Large) -->
+    <div class="lg:col-span-8 rounded-3xl border border-zinc-800/60 bg-zinc-950 p-8 md:p-10 flex flex-col justify-center scroll-animate relative overflow-hidden group">
+      <div class="relative z-10">
+        <h2 class="text-2xl font-bold text-white mb-6">La historia corta</h2>
+        <p class="text-zinc-400 leading-relaxed text-lg md:text-xl mb-6">
+          Soy Jesús Andrés Mondragón Tenorio, estudiante de Ingeniería en Sistemas Computacionales. Me especializo en construir productos digitales completos, desde el diseño visual hasta el despliegue técnico.
+        </p>
+        <p class="text-zinc-400 leading-relaxed text-lg md:text-xl">
+          Mi filosofía es simple: no me conformo con escribir código que funcione, busco que cada línea sume a una experiencia robusta, rápida y que no se sienta improvisada.
+        </p>
+      </div>
+      <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-all duration-700"></div>
+    </div>
+
+    <!-- FOTO & LOCATION -->
+    <div class="lg:col-span-4 rounded-3xl border border-zinc-800/60 bg-zinc-950 overflow-hidden scroll-animate scroll-delay-1 relative group min-h-[320px]">
+      <Image src={foto1} alt="Jesús Andrés" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+      <div class="absolute bottom-8 left-8 right-8">
+        <p class="text-white font-bold text-2xl">Jesús Andrés</p>
+        <div class="flex items-center gap-3 mt-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse"></div>
+          <p class="text-zinc-300 font-medium text-sm tracking-wide">Estado de México</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENFOQUE TÉCNICO (Horizontal Strip) -->
+    <div class="lg:col-span-12 rounded-3xl border border-zinc-800/60 bg-zinc-950 p-6 md:p-8 flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-8 scroll-animate scroll-delay-2">
+      <div class="w-full lg:w-1/3 text-center lg:text-left">
+        <h3 class="text-white font-bold text-xl">Mi enfoque</h3>
+        <p class="text-zinc-500 mt-2 text-sm">Áreas en las que aporto mayor valor.</p>
+      </div>
+      <div class="w-full lg:w-2/3 grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="flex items-center justify-center text-center px-2 py-3 rounded-xl border border-zinc-800/80 bg-zinc-900/50 text-zinc-300 text-sm font-medium hover:border-cyan-500/50 hover:text-cyan-300 transition-colors">Frontend Arq.</div>
+        <div class="flex items-center justify-center text-center px-2 py-3 rounded-xl border border-zinc-800/80 bg-zinc-900/50 text-zinc-300 text-sm font-medium hover:border-cyan-500/50 hover:text-cyan-300 transition-colors">Mobile Dev</div>
+        <div class="flex items-center justify-center text-center px-2 py-3 rounded-xl border border-zinc-800/80 bg-zinc-900/50 text-zinc-300 text-sm font-medium hover:border-cyan-500/50 hover:text-cyan-300 transition-colors">API / Backend</div>
+        <div class="flex items-center justify-center text-center px-2 py-3 rounded-xl border border-zinc-800/80 bg-zinc-900/50 text-zinc-300 text-sm font-medium hover:border-cyan-500/50 hover:text-cyan-300 transition-colors">UI / UX</div>
+      </div>
+    </div>
+
+    <!-- HOBBIES (Photographic Grid) -->
+    <div class="lg:col-span-12 rounded-3xl border border-zinc-800/60 bg-zinc-950 p-8 scroll-animate">
+      <div class="mb-8 text-center md:text-left">
+        <h3 class="text-white font-bold text-xl">Fuera del teclado</h3>
+        <p class="text-zinc-500 mt-2 text-sm">Lo que mantiene mi creatividad fluyendo.</p>
+      </div>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 h-[240px] md:h-[280px]">
+        {hobbies.map(act => (
+          <div class="relative rounded-2xl overflow-hidden group border border-zinc-800/50">
+            <Image 
+              src={act.image} 
+              alt={act.title} 
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-40 group-hover:opacity-90 grayscale group-hover:grayscale-0" 
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent"></div>
+            <p class="absolute bottom-5 left-5 text-white font-bold text-sm tracking-widest uppercase">{act.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
+</section>

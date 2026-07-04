@@ -1,0 +1,16 @@
+---
+// src/pages/about.astro
+import BaseLayout from '../layouts/Layout.astro';
+import About1 from '../components/About.astro';
+import Timeline from '../components/Timeline.astro';
+import GitHubStats from '../components/GitHubStats.astro';
+---
+
+<BaseLayout 
+  title="Acerca de Mí - Jesús Andrés" 
+  description="Conoce más sobre mí, mi trayectoria, habilidades y mi experiencia en desarrollo web"
+>
+  <About1 />
+  <Timeline />
+  <GitHubStats />
+</BaseLayout>

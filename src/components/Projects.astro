@@ -1,0 +1,378 @@
+---
+interface Props {
+  limit?: number;
+  showTitle?: boolean;
+}
+
+const { limit, showTitle = true } = Astro.props;
+
+const baseUrl = import.meta.env.BASE_URL;
+const normalizedBase = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+
+const allProjects = [
+  {
+    title: "UESSJR Agenda",
+    eyebrow: "Plataforma Full-Stack",
+    description:
+      "Sistema integral en producción para gestión de jornadas académicas universitarias. Incluye control de asistencia offline con QR, un bot de Telegram y generación automatizada de constancias.",
+    problem:
+      "Digitalizar conferencias manejando asistencia masiva, evitando traslapes de horarios y permitiendo interacción en vivo (encuestas, Q&A) entre ponentes y estudiantes.",
+    result:
+      "App rankeada #1 en búsquedas orgánicas, manejando interacciones en tiempo real con WebSockets y protección de datos mediante RLS (Row Level Security).",
+    role: "Desarrollo Full-Stack, UI/UX y Arquitectura BD",
+    period: "En producción",
+    technologies: ["React", "Supabase", "PostgreSQL", "WebSockets", "Deno"],
+    githubUrl: "https://github.com/AndresMondragon2004/uessjr-agenda",
+    image: "images/uessjr.png", 
+    longDescription: "Desarrollé la plataforma UESSJR Agenda porque la gestión de eventos académicos dependía de procesos manuales. Construí el frontend con React y Vite, enfocándome en interfaces limpias y carga rápida. El backend usa Supabase (PostgreSQL) garantizando sincronización en tiempo real y seguridad mediante RLS. Además, integré generación automática de PDFs para las constancias y un Bot de Telegram que notifica a los organizadores. El mayor reto fue optimizar la base de datos para manejar la concurrencia masiva cuando cientos de alumnos escanean su QR de asistencia simultáneamente.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+  {
+    title: "Clasificador Agéntico de Frutas V4",
+    eyebrow: "Hardware & AI Agents",
+    description:
+      "Sistema autónomo que utiliza un agente LLM local (Qwen3-VL) para detectar frutas mediante visión por computadora y clasificarlas accionando servomotores.",
+    problem:
+      "Crear un puente entre el razonamiento visual complejo de una IA y actuadores de hardware físicos usando tool-calling en tiempo real.",
+    result:
+      "Un loop agéntico 100% local donde el LLM analiza imágenes de una webcam, decide inteligentemente y ejecuta endpoints HTTP para enviar comandos al Arduino.",
+    role: "Ingeniería de IA, Firmware y Backend Python",
+    period: "Reciente",
+    technologies: ["Python", "Arduino", "LLMs (LMStudio)", "Tool Calling", "VL53L0X Laser"],
+    githubUrl: "https://github.com/AndresMondragon2004/Clasificador-de-frutas-",
+    image: "images/fruit_sorter.png", 
+    longDescription: "Este proyecto fusiona IA generativa con hardware físico. En lugar de usar Machine Learning tradicional, implementé un LLM multimodal (Qwen3-VL local) que razona sobre la imagen que ve a través de la webcam. Programé un sistema en Python que intercepta la decisión del LLM mediante 'Tool Calling' y la traduce a pulsos enviados a un microcontrolador Arduino, el cual mueve servomotores para separar las frutas. Todo funciona sin conexión a internet.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+  {
+    title: "Sistema de Egresados UMB",
+    eyebrow: "Dashboard Institucional",
+    description:
+      "Plataforma web oficial para la Universidad Mexiquense del Bicentenario, diseñada para llevar el control, seguimiento y análisis estadístico de sus egresados.",
+    problem:
+      "La universidad necesitaba un sistema seguro y multiusuario para visualizar estadísticas en tiempo real y gestionar la base de datos de los egresados de diversas carreras.",
+    result:
+      "Un dashboard integral con gráficas interactivas, exportación a Excel, y un sistema de roles (Admin/Coordinador) con autenticación bcrypt y base de datos PostgreSQL.",
+    role: "Desarrollo Full-Stack (Next.js)",
+    period: "2026",
+    technologies: ["Next.js 14", "React", "Supabase", "TailwindCSS", "Chart.js"],
+    githubUrl: "https://github.com/AndresMondragon2004/sistema-egresados-umb",
+    image: "images/egresados.png", 
+    longDescription: "La Universidad requería una forma moderna de rastrear el éxito profesional de sus egresados. Lideré este Dashboard utilizando Next.js 14 y React, lo que permitió tener SSR para carga instantánea y excelente SEO. Diseñé un esquema relacional complejo y usé Chart.js para visualizar métricas de empleo, salarios y distribución. El sistema incluye autenticación robusta y protección de rutas para los administradores.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+  {
+    title: "Arquitectura Oracle 19c en Linux",
+    eyebrow: "Database Administration & SysAdmin",
+    description:
+      "Despliegue y configuración desde cero de una instancia robusta de Oracle Database 19c sobre un servidor Linux (Fedora), estableciendo una arquitectura cliente-servidor.",
+    problem:
+      "Superar estrictas barreras de seguridad del OS (SELinux, Firewalls), resolver dependencias corruptas y configurar manualmente listeners de red para acceso remoto.",
+    result:
+      "Base de datos 100% operativa (instancia 'umb') con Enterprise Manager (EM Express) accesible remotamente, gestión de Tablespaces y seguridad DDL/DML por roles.",
+    role: "Database Administrator (DBA) & SysAdmin",
+    period: "2026",
+    technologies: ["Oracle DB 19c", "Linux (Fedora)", "PL/SQL", "SELinux", "Bash Scripting"],
+    githubUrl: "https://github.com/AndresMondragon2004",
+    image: "images/oracle_linux.jpg", 
+    longDescription: "Como DBA, me enfrenté al reto de montar infraestructura empresarial desde un Linux limpio. Este proyecto automatiza la instalación de Oracle 19c, resolviendo conflictos del kernel y configurando políticas de firewall y SELinux. Diseñé tablespaces optimizados y habilité Oracle Enterprise Manager para monitorización remota, demostrando capacidad para trabajar en infraestructura crítica y DevOps.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+  {
+    title: "Pago Seguro Artesanal con Interledger",
+    eyebrow: "Fintech para comercio local",
+    description:
+      "Plataforma web pensada para ayudar a artesanos a vender con pagos digitales usando Open Payments.",
+    problem:
+      "Muchos vendedores locales no tienen una forma simple de cobrar en experiencias digitales.",
+    result:
+      "Prototipo funcional con flujo de pago, panel web y base para integrar Interledger en un caso real.",
+    role: "Frontend, integración y arquitectura del prototipo",
+    period: "Septiembre 2025",
+    technologies: ["React", "Vite", "Express", "Interledger API"],
+    githubUrl: "https://github.com/owlok-afk/Interledger_program",
+    image: "images/interledger.png",
+    longDescription: "Para democratizar los pagos en el comercio local, integré el protocolo Interledger en este prototipo. Permite micro-transacciones instantáneas sin depender de las pasarelas de pago tradicionales (con altas comisiones). El frontend en React proporciona un flujo de checkout intuitivo, y el backend en Express gestiona los endpoints de ILP de forma totalmente segura.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+  {
+    title: "OpenWallet",
+    eyebrow: "App móvil bancaria",
+    description:
+      "Wallet interactiva con comandos de voz, pagos por QR, programación de pagos y apoyo a streamers.",
+    problem:
+      "Las wallets suelen sentirse frías; el reto fue crear una experiencia más accesible y dinámica.",
+    result:
+      "App móvil en Expo con navegación, flujos de pago y funciones pensadas para escenarios de hackathon.",
+    role: "Diseño de experiencia, React Native y prototipado",
+    period: "Noviembre 2025",
+    technologies: ["React Native", "Expo", "Node.js"],
+    githubUrl: "https://github.com/owlok-afk/interledger_cdmx",
+    image: "images/menu.jpg",
+    longDescription: "Creado durante un hackathon, OpenWallet busca humanizar las finanzas. Desarrollado nativamente con React Native y Expo, implementa funcionalidades avanzadas como lectura de QR y comandos de voz para ejecutar pagos. El enfoque principal fue la accesibilidad, asegurando que cualquier usuario sin importar sus capacidades pudiera enviar dinero.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+  {
+    title: "Breakout Clone",
+    eyebrow: "Game development",
+    description:
+      "Recreación del clásico Breakout con físicas, colisiones, sonido y ritmo arcade.",
+    problem:
+      "El reto era entender la lógica de juego completa: input, estados, colisiones y feedback visual.",
+    result:
+      "Juego funcional en Godot que demuestra bases sólidas de programación interactiva.",
+    role: "Game logic, escenas y comportamiento de juego",
+    period: "Enero 2024",
+    technologies: ["Godot Engine", "GDScript"],
+    githubUrl: "https://github.com/AndresssUMB/Clone-Breakout",
+    image: "images/breakout.png",
+    longDescription: "Un proyecto puramente por amor al GameDev. Usando Godot Engine y GDScript, programé desde cero las físicas vectoriales, detección de colisiones AABB, y manejo de estado (Game Over, Score, Vidas). Fue un ejercicio profundo de lógica matemática aplicada a interfaces interactivas de 60fps constantes.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+  {
+    title: "Consultoría Web Interactiva",
+    eyebrow: "Web educativa",
+    description:
+      "Sitio orientado a guiar usuarios sin experiencia técnica en la elección de componentes tecnológicos.",
+    problem:
+      "Traducir conceptos técnicos a una navegación simple para personas que no programan.",
+    result:
+      "Interfaz clara con contenido organizado, decisiones guiadas y estructura web responsiva.",
+    role: "Maquetación, interacción y diseño responsivo",
+    period: "Enero 2023",
+    technologies: ["HTML5", "CSS3", "JavaScript"],
+    githubUrl: "https://github.com/AndresssUMB/Mi-pagina-web-Consultoria",
+    image: "images/consultoria_web.png",
+    longDescription: "Mi primera incursión seria en la creación de interfaces web. El diseño está enfocado en guiar a usuarios no técnicos a través de un cuestionario interactivo (usando Vanilla JS) para recomendarles configuraciones de hardware según sus necesidades reales. Totalmente responsivo sin usar frameworks pesados.",
+    accent: "from-cyan-500 to-cyan-300",
+  },
+];
+
+const projects = limit ? allProjects.slice(0, limit) : allProjects;
+---
+
+<section class={`${showTitle ? "min-h-screen py-20" : "py-10"} relative overflow-hidden`}>
+
+  <div class="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 w-full relative z-10">
+    {showTitle && (
+      <div class="mb-16 max-w-3xl scroll-animate">
+        <span class="inline-flex rounded-full border px-4 py-1 text-sm font-bold brand-chip">
+          Casos de estudio
+        </span>
+        <h1 class="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">
+          Proyectos que muestran cómo pienso, diseño y construyo.
+        </h1>
+        <p class="mt-4 text-lg app-muted">
+          No solo son repositorios: cada proyecto tiene un problema, una decisión técnica y un resultado concreto.
+        </p>
+      </div>
+    )}
+
+    <div class="grid gap-8 lg:gap-10">
+      {projects.map((project, index) => (
+        <article
+          class="group tilt-card motion-card scroll-animate grid overflow-hidden rounded-2xl border border-zinc-800/50 bg-zinc-950 shadow-sm lg:grid-cols-[1fr_1fr] gap-0 items-stretch"
+          style={`--reveal-delay: ${(index % 3) * 100}ms`}
+        >
+          <div class={`relative min-h-64 lg:min-h-full overflow-hidden bg-zinc-950 motion-media ${index % 2 !== 0 ? 'lg:order-last border-l border-zinc-800/50' : 'border-r border-zinc-800/50'}`}>
+            <!-- Fondo difuminado para rellenar espacios -->
+            <img
+              src={normalizedBase + project.image}
+              alt=""
+              class="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110"
+              aria-hidden="true"
+            />
+            <!-- Imagen real completa -->
+            <img
+              src={normalizedBase + project.image}
+              alt={project.title}
+              class="absolute inset-0 h-full w-full object-contain p-4 md:p-8 drop-shadow-2xl transition-transform duration-500 opacity-90 group-hover:opacity-100 group-hover:scale-105"
+              loading="lazy"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent pointer-events-none"></div>
+            <div class={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${project.accent}`}></div>
+            <div class="absolute left-5 top-5 rounded-full bg-black/60 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white backdrop-blur border border-white/10 shadow-lg">
+              {project.period}
+            </div>
+          </div>
+
+          <div class="flex flex-col p-6 md:p-8">
+            <span class="text-sm font-bold uppercase tracking-wide brand-text">
+              {project.eyebrow}
+            </span>
+            <h2 class="mt-2 text-2xl md:text-3xl font-extrabold app-text">
+              {project.title}
+            </h2>
+            <p class="mt-3 app-muted leading-relaxed">
+              {project.description}
+            </p>
+
+            <div class="mt-6 grid gap-4 md:grid-cols-2">
+              <div class="rounded-xl app-surface-muted p-4">
+                <h3 class="text-sm font-bold app-text">Problema</h3>
+                <p class="mt-2 text-sm leading-relaxed app-muted">
+                  {project.problem}
+                </p>
+              </div>
+              <div class="rounded-xl app-surface-muted p-4">
+                <h3 class="text-sm font-bold app-text">Resultado</h3>
+                <p class="mt-2 text-sm leading-relaxed app-muted">
+                  {project.result}
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-5 rounded-xl border border-subtle p-4">
+              <span class="text-xs font-bold uppercase tracking-wide app-muted">Mi rol</span>
+              <p class="mt-1 text-sm font-semibold app-text">{project.role}</p>
+            </div>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+              {project.technologies.map((tech) => (
+                <span class="rounded-lg border app-surface px-3 py-1 text-xs font-bold app-muted">
+                  {tech}
+                </span>
+              ))}
+            </div>
+
+            <div class="mt-7 flex flex-wrap items-center gap-3">
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-xl brand-button px-5 py-3 text-sm font-bold active:scale-95 transition-transform"
+              >
+                Ver repositorio
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386C24 5.373 18.627 0 12 0z"/>
+                </svg>
+              </a>
+              <button
+                class="open-modal-btn inline-flex items-center gap-2 rounded-xl border-2 brand-outline px-5 py-3 text-sm font-bold active:scale-95 transition-transform"
+                data-target={`modal-${index}`}
+              >
+                Ver más detalles
+              </button>
+            </div>
+          </div>
+        </article>
+        
+        <!-- Dialog Modal para detalles extendidos -->
+        <dialog id={`modal-${index}`} class="m-auto bg-zinc-950 border border-zinc-800 rounded-2xl p-0 backdrop:bg-black/80 backdrop:backdrop-blur-sm max-w-4xl w-[95%] overflow-hidden shadow-2xl transition-all open:animate-in open:fade-in open:zoom-in-95 duration-200">
+          <div class="relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button class="close-modal-btn fixed top-4 right-4 z-50 p-2 bg-black/60 hover:bg-black rounded-full text-white transition-colors border border-white/10" data-target={`modal-${index}`}>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="h-64 md:h-80 lg:h-96 overflow-hidden relative bg-zinc-950 flex items-center justify-center">
+              <!-- Fondo difuminado modal -->
+              <img src={normalizedBase + project.image} alt="" class="absolute inset-0 h-full w-full object-cover blur-3xl opacity-30 scale-125" aria-hidden="true" />
+              <!-- Imagen principal modal -->
+              <img src={normalizedBase + project.image} alt={project.title} class="relative w-full h-full object-contain p-4 md:p-8 drop-shadow-2xl z-10" />
+              <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent z-10 pointer-events-none"></div>
+            </div>
+            <div class="p-6 md:p-8 -mt-12 relative z-10">
+              <span class="inline-flex rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-bold text-cyan-400 mb-3">{project.eyebrow}</span>
+              <h3 class="text-3xl md:text-4xl font-extrabold text-white mb-6">{project.title}</h3>
+              
+              <div class="prose prose-invert prose-cyan max-w-none">
+                <p class="text-zinc-300 leading-relaxed text-base md:text-lg">{project.longDescription || project.description}</p>
+              </div>
+              
+              <div class="mt-8 flex flex-wrap gap-2">
+                {project.technologies.map((tech) => (
+                  <span class="rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-1 text-xs font-bold text-zinc-400">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+              
+              <div class="mt-8 pt-6 border-t border-zinc-800 flex justify-end">
+                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl brand-button px-5 py-3 text-sm font-bold active:scale-95 transition-transform">
+                  Ver en GitHub
+                  <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386C24 5.373 18.627 0 12 0z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </dialog>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+<script is:inline>
+  function initTilt() {
+    if (typeof VanillaTilt !== "undefined") {
+      VanillaTilt.init(document.querySelectorAll(".tilt-card"), {
+        max: 5,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.15,
+        scale: 1.02,
+        perspective: 1000,
+      });
+    }
+    
+    // Modal logic
+    const openBtns = document.querySelectorAll('.open-modal-btn');
+    const closeBtns = document.querySelectorAll('.close-modal-btn');
+    
+    openBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = e.currentTarget.getAttribute('data-target');
+        const dialog = document.getElementById(targetId);
+        if (dialog) {
+          dialog.showModal();
+          document.body.style.overflow = 'hidden'; // Evitar scroll de fondo
+        }
+      });
+    });
+
+    closeBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = e.currentTarget.getAttribute('data-target');
+        const dialog = document.getElementById(targetId);
+        if (dialog) {
+          dialog.close();
+          document.body.style.overflow = ''; 
+        }
+      });
+    });
+
+    // Cerrar al hacer clic en el backdrop
+    const dialogs = document.querySelectorAll('dialog');
+    dialogs.forEach(dialog => {
+      dialog.addEventListener('click', (e) => {
+        const rect = dialog.getBoundingClientRect();
+        const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+          rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+          dialog.close();
+          document.body.style.overflow = '';
+        }
+      });
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initTilt);
+  document.addEventListener('astro:page-load', initTilt);
+</script>
+<style>
+  /* Scrollbar custom para el modal */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+</style>

@@ -1,0 +1,327 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --app-bg: #fafafa;
+  --app-bg-soft: #f4f4f5;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f4f4f5;
+  --app-text: #09090b;
+  --app-muted: #71717a;
+  --app-border: #e4e4e7;
+  --brand-primary: #06b6d4; /* Cyan 500 */
+  --brand-secondary: #06b6d4;
+  --brand-accent: #06b6d4;
+  --brand-primary-soft: rgba(6, 182, 212, 0.1);
+  --brand-secondary-soft: rgba(6, 182, 212, 0.1);
+}
+
+.dark {
+  --app-bg: #09090b; /* Zinc 950 */
+  --app-bg-soft: #18181b; /* Zinc 900 */
+  --app-surface: #09090b;
+  --app-surface-muted: #18181b;
+  --app-text: #fafafa;
+  --app-muted: #a1a1aa;
+  --app-border: #27272a; /* Zinc 800 */
+  --brand-primary: #22d3ee; /* Electric Cyan 400 */
+  --brand-secondary: #22d3ee;
+  --brand-accent: #22d3ee;
+  --brand-primary-soft: rgba(34, 211, 238, 0.1);
+  --brand-secondary-soft: rgba(34, 211, 238, 0.1);
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, var(--brand-primary-soft), transparent 30rem),
+    linear-gradient(180deg, var(--app-bg), var(--app-bg));
+  color: var(--app-text);
+  min-height: 100vh;
+}
+
+.app-surface {
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  border-color: var(--app-border);
+}
+
+.app-surface-muted {
+  background: color-mix(in srgb, var(--app-surface-muted) 86%, transparent);
+  border-color: var(--app-border);
+}
+
+.app-text {
+  color: var(--app-text);
+}
+
+.app-muted {
+  color: var(--app-muted);
+}
+
+.brand-text {
+  color: var(--brand-primary);
+}
+
+.brand-link {
+  color: var(--app-muted);
+}
+
+.brand-link:hover {
+  color: var(--brand-primary);
+}
+
+.surface-hover:hover {
+  background: var(--app-surface-muted);
+}
+
+.border-subtle {
+  border-color: var(--app-border);
+}
+
+.brand-gradient {
+  background-image: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--brand-accent));
+}
+
+.brand-gradient-text {
+  background-image: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--brand-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-button {
+  background: var(--app-text);
+  color: var(--app-bg);
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 150ms ease,
+              color 150ms ease;
+}
+
+.brand-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--brand-primary) 22%, transparent);
+}
+
+.brand-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.brand-outline {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 150ms ease,
+              color 150ms ease,
+              box-shadow 150ms ease;
+}
+
+.brand-outline:hover {
+  background: var(--brand-primary);
+  color: var(--app-bg);
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--brand-primary) 18%, transparent);
+}
+
+.brand-chip {
+  background: var(--brand-primary-soft);
+  border-color: color-mix(in srgb, var(--brand-primary) 28%, transparent);
+  color: var(--brand-primary);
+}
+
+.motion-card {
+  position: relative;
+  isolation: isolate;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 160ms ease,
+              background 160ms ease;
+  will-change: transform;
+}
+
+.motion-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--brand-primary) 16%, transparent), transparent 34%),
+    radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--brand-accent) 12%, transparent), transparent 30%);
+  transition: opacity 180ms ease;
+}
+
+.motion-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--brand-primary) 38%, var(--app-border));
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--brand-primary) 14%, transparent);
+}
+
+.motion-card:hover::after {
+  opacity: 1;
+}
+
+.image-card::after {
+  display: none;
+}
+
+.motion-media {
+  overflow: hidden;
+}
+
+.motion-media img {
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 180ms ease,
+              filter 180ms ease;
+}
+
+.motion-card:hover .motion-media img,
+.group:hover .motion-media img {
+  transform: scale(1.035);
+}
+
+.float-soft {
+  animation: floatSoft 4.5s ease-in-out infinite;
+}
+
+@keyframes floatSoft {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* ===========================
+   Scroll Reveal Animations
+   =========================== */
+
+/* Base state: hidden, shifted down */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  /* Salida rápida (sin delay) */
+  transition: opacity 0.2s ease-out,
+              transform 0.2s ease-out;
+  transition-delay: 0ms;
+  will-change: opacity, transform;
+}
+
+/* Slide from left */
+.scroll-animate-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.2s ease-out,
+              transform 0.2s ease-out;
+  transition-delay: 0ms;
+  will-change: opacity, transform;
+}
+
+/* Slide from right */
+.scroll-animate-right {
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.2s ease-out,
+              transform 0.2s ease-out;
+  transition-delay: 0ms;
+  will-change: opacity, transform;
+}
+
+/* Scale up */
+.scroll-animate-scale {
+  opacity: 0;
+  transform: translateY(14px) scale(0.98);
+  transition: opacity 0.2s ease-out,
+              transform 0.2s ease-out;
+  transition-delay: 0ms;
+  will-change: opacity, transform;
+}
+
+/* Active state: visible */
+.scroll-animate.is-visible,
+.scroll-animate-left.is-visible,
+.scroll-animate-right.is-visible,
+.scroll-animate-scale.is-visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1);
+}
+
+/* Transición suave y demorada al ENTRAR (.is-visible) */
+.scroll-animate.is-visible,
+.scroll-animate-left.is-visible,
+.scroll-animate-right.is-visible {
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.scroll-animate-scale.is-visible {
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.scroll-animate.is-visible.motion-card:hover,
+.scroll-animate-left.is-visible.motion-card:hover,
+.scroll-animate-right.is-visible.motion-card:hover,
+.scroll-animate-scale.is-visible.motion-card:hover {
+  transform: translateY(-6px) translateX(0) scale(1.01);
+}
+
+/* Staggered delay classes */
+.scroll-delay-1 { transition-delay: 0.1s; }
+.scroll-delay-2 { transition-delay: 0.2s; }
+.scroll-delay-3 { transition-delay: 0.3s; }
+.scroll-delay-4 { transition-delay: 0.4s; }
+.scroll-delay-5 { transition-delay: 0.5s; }
+.scroll-delay-6 { transition-delay: 0.6s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .scroll-animate,
+  .scroll-animate-left,
+  .scroll-animate-right,
+  .scroll-animate-scale {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ===========================
+   Smooth scroll behavior
+   =========================== */
+html {
+  scroll-behavior: smooth;
+}
+
+.form-field {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 2px solid var(--app-border);
+  background: var(--app-surface);
+  padding: 0.85rem 1rem;
+  color: var(--app-text);
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.form-field::placeholder {
+  color: rgb(156 163 175);
+}
+
+.form-field:hover {
+  border-color: color-mix(in srgb, var(--brand-primary) 45%, var(--app-border));
+}
+
+.form-field:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-primary) 18%, transparent);
+}
