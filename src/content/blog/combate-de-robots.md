@@ -2,7 +2,7 @@
 title: "Cuarto combate de robots"
 description: "Se llevó a cabo el cuarto combate de robots en nuestra universidad, en dónde participamos con nuestro robot \"Hello Kitty\""
 date: 2025-12-05
-image: "/andres/images/blog/robots.jpeg"
+image: "/images/blog/robots.jpeg"
 tags: ["Robots", "Combate de robots"]
 ---
 

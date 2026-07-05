@@ -2,7 +2,7 @@
 title: "Mi primer Hackathon"
 description: "Participé en mi primer Hackathon"
 date: 2025-09-19
-image: "/andres/images/blog/hackathon.jpg"
+image: "/images/blog/hackathon.jpg"
 tags: ["Hackathon", "Interledger", "React"]
 ---
 

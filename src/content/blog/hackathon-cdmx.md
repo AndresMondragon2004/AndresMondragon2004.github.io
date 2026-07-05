@@ -2,7 +2,7 @@
 title: "Participación en mi segundo Hackathon, en la CDMX"
 description: "Se llevó a cabo el segundo hackathon en la CDMX, en dónde participamos con nuestro proyecto \"OpenWallet\""
 date: 2025-11-07
-image: "/andres/images/blog/hackathon2.jpeg"
+image: "/images/blog/hackathon2.jpeg"
 tags: ["Hackathon", "Interledger", "OpenWallet"]
 ---
 

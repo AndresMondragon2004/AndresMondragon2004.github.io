@@ -2,7 +2,7 @@
 title: "Un día común en mi vida"
 description: "Un día común en mi vida, cosas cotidianas que suelo realizar en mi día a día."
 date: 2026-01-01
-image: "/andres/images/blog/dia_comun.jpeg"
+image: "/images/blog/dia_comun.jpeg"
 tags: ["Día común", "Cotidiano"]
 ---
 

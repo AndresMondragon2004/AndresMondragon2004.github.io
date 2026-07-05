@@ -2,7 +2,7 @@
 title: "Visita al Museo del Banco de México"
 description: "Realizamos una visita al Museo del Banco de México, donde pudimos aprender sobre la historia del banco y su papel en la economía mexicana, además visitamos el bosque de Chapultepec."
 date: 2025-11-11
-image: "/andres/images/blog/banco.jpeg"
+image: "/images/blog/banco.jpeg"
 tags: ["Museo", "Bosque de Chapultepec", "Visita"]
 ---
 
